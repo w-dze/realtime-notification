@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+FROM node:20-bookworm-slim AS build
+WORKDIR /app
+COPY package.json tsconfig.base.json ./
+COPY packages/shared/package.json packages/shared/
+COPY services/api/package.json services/api/
+# Placeholder workspaces so npm can link the monorepo during install
+COPY packages/shared packages/shared
+COPY services/api services/api
+RUN npm install --workspace=@rns/shared --workspace=@rns/api
+RUN npm run build -w @rns/shared && npm run build -w @rns/api \
+  && npm prune --omit=dev
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app /app
+WORKDIR /app/services/api
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
