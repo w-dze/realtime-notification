@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+FROM node:20-bookworm-slim AS build
+WORKDIR /app
+COPY package.json tsconfig.base.json ./
+COPY packages/shared/package.json packages/shared/
+COPY services/subscriber-stub/package.json services/subscriber-stub/
+COPY packages/shared packages/shared
+COPY services/subscriber-stub services/subscriber-stub
+RUN npm install --workspace=@rns/shared --workspace=@rns/subscriber-stub
+RUN npm run build -w @rns/shared && npm run build -w @rns/subscriber-stub \
+  && npm prune --omit=dev
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app /app
+WORKDIR /app/services/subscriber-stub
+CMD ["node", "dist/index.js"]

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-worker
+  namespace: realtime-notification
+  labels:
+    app: notification-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-worker
+  template:
+    metadata:
+      labels:
+        app: notification-worker
+    spec:
+      containers:
+        - name: worker
+          image: realtime-notification/worker:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_GROUP_ID
+              value: notification-workers
+          envFrom:
+            - configMapRef:
+                name: notification-config
+            - secretRef:
+                name: notification-secrets
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 400m
+              memory: 256Mi

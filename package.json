@@ -1,0 +1,22 @@
+{
+  "name": "realtime-notification",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Realtime notification service: Kafka activity streaming, Redis prefs, SSE delivery",
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @rns/shared && npm run build -w @rns/api && npm run build -w @rns/worker && npm run build -w @rns/subscriber-stub",
+    "typecheck": "npm run typecheck -w @rns/shared && npm run typecheck -w @rns/api && npm run typecheck -w @rns/worker && npm run typecheck -w @rns/subscriber-stub",
+    "test": "npm run test -w @rns/shared && npm run test -w @rns/api",
+    "dev:api": "npm run dev -w @rns/api",
+    "dev:worker": "npm run dev -w @rns/worker",
+    "dev:stub": "npm run dev -w @rns/subscriber-stub",
+    "smoke": "bash scripts/smoke.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
